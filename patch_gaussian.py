@@ -12,7 +12,7 @@ import torch
 
 
 class AddPatchGaussian():
-    def __init__(self, patch_size: int, max_scale: float, randomize_patch_size: bool, randomize_scale: bool):
+    def __init__(self, patch_size: int, max_scale: float, randomize_patch_size: bool, randomize_scale: bool, **kwargs):
         """
         Args:
         - patch_size: size of patch. if -1, it means all image
