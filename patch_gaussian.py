@@ -4,6 +4,7 @@ import sys
 base = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(base)
 
+import click
 import math
 import random
 
@@ -77,14 +78,21 @@ class AddPatchGaussian():
         return mask
 
 
-if __name__ == '__main__':
+# options
+@click.command()
+# input and output path
+@click.option('-i', '--image_path', type=str, default='./samples/ILSVRC2012_val_00000466.JPEG')
+@click.option('-o', '--out_path', type=str, default='./logs/patch_gaussian_sample_results.png')
+# augmentation params
+@click.option('--randomize_patch_size', type=bool, default=False)
+@click.option('--randomize_scale', type=bool, default=False)
+#
+def main(**kwargs):
     import tqdm
     import torchvision
-
     from PIL import Image
 
-    path = './samples/ILSVRC2012_val_00000466.JPEG'
-    im = Image.open(path)
+    im = Image.open(kwargs['image_path'])
     preprocess = torchvision.transforms.Compose([
         torchvision.transforms.Resize(256),
         torchvision.transforms.CenterCrop(224),
@@ -98,7 +106,7 @@ if __name__ == '__main__':
         samples_fixed_scale = []
 
         for patch_size in [20, 30, 50, 100, 150, 448]:
-            im_augmented = AddPatchGaussian(patch_size, max_scale, False, False)(im)
+            im_augmented = AddPatchGaussian(patch_size, max_scale, kwargs['randomize_patch_size'], kwargs['randomize_scale'])(im)
             samples_fixed_scale.append(im_augmented)
 
         samples.append(torch.cat(samples_fixed_scale, dim=-1))
@@ -106,19 +114,8 @@ if __name__ == '__main__':
     samples = torch.cat(samples, dim=-2)
 
     os.makedirs('./logs', exist_ok=True)
-    torchvision.utils.save_image(samples, './logs/patch_gaussian_test_fixed_scale_and_patch_size.png')
+    torchvision.utils.save_image(samples, kwargs['out_path'])
 
-    samples = []
-    for max_scale in tqdm.tqdm([0.1, 0.2, 0.3, 0.5, 0.8, 1.0]):
-        samples_fixed_scale = []
 
-        for patch_size in [20, 30, 50, 100, 150, 448]:
-            im_augmented = AddPatchGaussian(patch_size, max_scale, True, True)(im)
-            samples_fixed_scale.append(im_augmented)
-
-        samples.append(torch.cat(samples_fixed_scale, dim=-1))
-
-    samples = torch.cat(samples, dim=-2)
-
-    os.makedirs('./logs', exist_ok=True)
-    torchvision.utils.save_image(samples, './logs/patch_gaussian_test_random_scale_and_patch_size.png')
+if __name__ == '__main__':
+    main()
