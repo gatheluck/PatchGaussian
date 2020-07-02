@@ -19,7 +19,7 @@ Note that I run the code with Ubuntu 18, Pytorch 1.4.0, CUDA 10.1.
 
 ## Usage
 
-### Generating Sample Image
+### Generating sample image
 
 By running `patch_gaussian.py`, you will be able to obtain a sample image like the teaser image of this repo.
 If you want to apply Patch Gaussian to an other image, please specify options as follows.
